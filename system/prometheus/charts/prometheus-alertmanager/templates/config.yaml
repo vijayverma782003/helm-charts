@@ -20,3 +20,4 @@ data:
       slack_configs:
       - api_url: {{ default "MISSING" .Values.global.slack_webhook_url | quote }}
         channel: '#prometheus-alerts'
+        username: {{ default "BOT" .Values.global.slack_username | quote }}
