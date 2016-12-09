@@ -18,6 +18,70 @@ data:
         description = "Prometheus could not scrape a {{ "{{$labels.job}}" }} for more than one hour",
       }
 
+    ALERT K8STooManyOpenFiles
+      IF 100*process_open_fds{job=~"kubelets|kubernetes"} / process_max_fds > 50
+      FOR 10m
+      LABELS {
+        service = "k8s",
+        severity = "warning"
+      }
+      ANNOTATIONS {
+        summary = "{{ $labels.job }} has too many open file descriptors",
+        description = "{{ $labels.node }} is using {{ $value }}% of the available file/socket descriptors.",
+      }
+
+    ALERT K8STooManyOpenFiles
+      IF 100*process_open_fds{job=~"kubelets|kubernetes"} / process_max_fds > 80
+      FOR 10m
+      LABELS {
+        service = "k8s",
+        severity = "critical"
+      }
+      ANNOTATIONS {
+        summary = "{{ $labels.job }} has too many open file descriptors",
+        description = "{{ $labels.node }} is using {{ $value }}% of the available file/socket descriptors.",
+      }
+
+    # Some verbs excluded because they are expected to be long-lasting:
+    # WATCHLIST is long-poll, CONNECT is `kubectl exec`.
+    ALERT K8SApiServerLatency
+      IF histogram_quantile(
+          0.99,
+          sum without (instance,node,resource) (apiserver_request_latencies_bucket{verb!~"CONNECT|WATCHLIST|WATCH"})
+        ) / 1e6 > 1.0
+      FOR 10m
+      LABELS {
+        service = "k8s",
+        severity = "warning"
+      }
+      ANNOTATIONS {
+        summary = "Kubernetes apiserver latency is high",
+        description = "99th percentile Latency for {{ $labels.verb }} requests to the kube-apiserver is higher than 1s.",
+      }
+
+    ALERT K8SApiServerEtcdAccessLatency
+      IF etcd_request_latencies_summary{quantile="0.99"} / 1e6 > 1.0
+      FOR 15m
+      LABELS {
+        service = "k8s",
+        severity = "warning"
+      }
+      ANNOTATIONS {
+        summary = "Access to etcd is slow",
+        description = "99th percentile latency for apiserver to access etcd is higher than 1s.",
+      }
+
+    ALERT K8SKubeletTooManyPods
+      IF kubelet_running_pod_count > 100
+      LABELS {
+        service = "k8s",
+        severity = "warning",
+      }
+      ANNOTATIONS {
+        summary = "Kubelet is close to pod limit",
+        description = "Kubelet {{$labels.instance}} is running {{$value}} pods, close to the limit of 110",
+      }
+
   prometheus.yml: |
     rule_files:
       - /etc/prometheus/*.rules
