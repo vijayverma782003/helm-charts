@@ -82,6 +82,17 @@ data:
         description = "Kubelet {{$labels.instance}} is running {{$value}} pods, close to the limit of 110",
       }
 
+    ALERT KsDatabaseDown
+      IF up{component="keystone",type="database"} == 0
+      LABELS {
+        service = "keystone",
+        severity = "warning"
+      }
+      ANNOTATIONS {
+        summary = "Kubelet cannot be scraped",
+        description = "Prometheus could not scrape a {{ "{{$labels.job}}" }} for more than one hour",
+      }
+
   prometheus.yml: |
     rule_files:
       - /etc/prometheus/*.rules
