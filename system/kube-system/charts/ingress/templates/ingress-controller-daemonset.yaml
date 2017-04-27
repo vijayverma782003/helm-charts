@@ -22,13 +22,6 @@ spec:
       - image: "{{ .Values.controller.image.repository }}:{{ .Values.controller.image.tag }}"
         imagePullPolicy: {{ default "" .Values.controller.image.pullPolicy | quote }}
         name: nginx-ingress-lb
-        livenessProbe:
-          httpGet:
-            path: /healthz
-            port: 10254
-            scheme: HTTP
-          initialDelaySeconds: 30
-          timeoutSeconds: 5
         # use downward API
         env:
           - name: POD_IP
