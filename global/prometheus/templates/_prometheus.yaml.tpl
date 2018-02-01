@@ -33,7 +33,6 @@ scrape_configs:
       - '{__name__=~"^vcenter_esx_node_info$"}'
       - 'vice_president_remaining_tokens{region="eu-de-1"}'
 
-
   relabel_configs:
     - action: replace
       source_labels: [__address__]
