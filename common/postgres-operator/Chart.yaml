@@ -1,0 +1,16 @@
+name: postgres-operator
+version: 0.1.0
+description: Chart for Postgre-Operator
+keywords:
+- postgres-operator
+- postgres
+- database
+- sql
+- opertator
+home: https://www.postgresql.org/
+sources:
+- https://github.com/kubernetes/charts
+- https://github.com/docker-library/postgres
+maintainers:
+- name: stefan
+engine: gotpl
