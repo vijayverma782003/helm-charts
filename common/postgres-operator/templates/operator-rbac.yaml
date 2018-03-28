@@ -1,14 +1,14 @@
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: postgres-operator
-  namespace: vitess
+  name: postgress-operator
+  namespace: {{ .Values.namespace }}
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: ClusterRole
 metadata:
-  name: postgres-operator
+  name: postgress-operator
 rules:
 - apiGroups:
   - acid.zalan.do
@@ -90,13 +90,9 @@ rules:
   - patch
 - apiGroups:
   - apps
+  - serviceaccount
   resources:
   - statefulsets
-  verbs: ["*"]
-- apiGroups:
-  - ""
-  resources:
-  - statefulsets.apps
   verbs: ["*"]
 - apiGroups:
   - ""
@@ -112,19 +108,19 @@ rules:
   - create
   - delete
   - get
-
 ---
+
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: postgres-operator
+  name: postgress-operator
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: postgres-operator
+  name: postgress-operator
 subjects:
 - kind: ServiceAccount
 # note: the cluster role binding needs to be defined
 # for every namespace the operator service account lives in.
-  name: postgres-operator
-  namespace: vitess
+  name: postgress-operator
+  namespace: {{ .Values.namespace }}

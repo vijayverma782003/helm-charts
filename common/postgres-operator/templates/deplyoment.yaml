@@ -1,24 +1,24 @@
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
-  name: postgres-operator
+  name: postgress-operator
   labels:
     app: {{ template "fullname" . }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     release: "{{ .Release.Name }}"
     heritage: "{{ .Release.Service }}"
 spec:
-  replicas: 1
+  replicas: {{ .Values.replicas }}
   template:
     metadata:
       labels:
-        name: postgres-operator
+        name: postgress-operator
     spec:
-      serviceAccountName: postgres-operator
+      serviceAccountName: postgress-operator
       containers:
-      - name: postgres-operator
-        image: registry.opensource.zalan.do/acid/postgres-operator:0f392c2
-        imagePullPolicy: IfNotPresent
+      - name: postgress-operator
+        image: {{ .Values.image }}:{{ .Values.imageTag }}
+        imagePullPolicy: {{ default "IfNotPresent" .Values.imagePullPolicy | quote }}
         env:
         # uncomment to overwrite a similar setting from operator configmap
         # if set to the empty string, watch the operator's own namespace
@@ -28,4 +28,4 @@ spec:
         #    fieldRef:
         #      fieldPath: metadata.namespace
         - name: CONFIG_MAP_NAME
-          value: "postgres-operator"
+          value: "postgress-operator"
