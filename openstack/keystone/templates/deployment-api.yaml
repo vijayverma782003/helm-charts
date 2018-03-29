@@ -72,6 +72,16 @@ spec:
             - name: DEPENDENCY_SERVICE
             {{- if .Values.postgresql.useOperator }}
               value: {{ .Release.Name }}-db,{{ .Release.Name }}-memcached
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  name: keystone-db.keystone.credentials
+                  key: username
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: keystone-db.keystone.credentials
+                  key: password
             {{ else }}
               value: {{ .Release.Name }}-postgresql,{{ .Release.Name }}-memcached
             {{- end }}
@@ -93,18 +103,6 @@ spec:
               value: "9125"
             - name: STATSD_PREFIX
               value: {{ .Values.api.metrics.prefix | default "openstack" | quote }}
-            {{- end }}
-            {{- if .Values.postgresql.useOperator }}
-            - name: PGUSER
-              valueFrom:
-                secretKeyRef:
-                  name: keystone-db.keystone.credentials
-                  key: username
-            - name: PGPASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: keystone-db.keystone.credentials
-                  key: password
             {{- end }}
           ports:
             - name: public

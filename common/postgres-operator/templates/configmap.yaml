@@ -28,7 +28,9 @@ data:
   db_hosted_zone: db.example.com
   master_dns_name_format: '{cluster}.{team}.staging.{hostedzone}'
   replica_dns_name_format: '{cluster}-repl.{team}.staging.{hostedzone}'
+
   docker_image: {{ .Values.operator.image }}:{{ .Values.operator.imageTag }}
+
   secret_name_template: '{cluster}.{username}.credentials'
   etcd_host: ""
   #infrastructure_roles_secret_name: postgresql-infrastructure-roles

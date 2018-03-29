@@ -41,10 +41,6 @@ spec:
             - name: DEPENDENCY_SERVICE
             {{- if .Values.postgresql.useOperator }}
               value: {{ .Release.Name }}-db
-            {{ else }}
-              value: {{ .Release.Name }}-postgresql
-            {{- end }}
-            {{- if .Values.postgresql.useOperator }}
             - name: PGUSER
               valueFrom:
                 secretKeyRef:
@@ -55,6 +51,8 @@ spec:
                 secretKeyRef:
                   name: keystone-db.keystone.credentials
                   key: password
+            {{ else }}
+              value: {{ .Release.Name }}-postgresql
             {{- end }}
             {{- if .Values.sentry.enabled }}
             - name: SENTRY_DSN

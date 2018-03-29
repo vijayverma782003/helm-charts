@@ -38,14 +38,9 @@ spec:
               value: "bash /scripts/bootstrap"
             - name: NAMESPACE
               value: {{ .Release.Namespace }}
+            - name: DEPENDENCY_SERVICE
             {{- if .Values.postgresql.useOperator }}
               value: {{ .Release.Name }}-db
-            {{ else }}
-              value: {{ .Release.Name }}-postgresql
-            {{- end }}
-            - name: DEPENDENCY_JOBS
-              value: keystone-job-migration
-            {{- if .Values.postgresql.useOperator }}
             - name: PGUSER
               valueFrom:
                 secretKeyRef:
@@ -56,7 +51,11 @@ spec:
                 secretKeyRef:
                   name: keystone-db.keystone.credentials
                   key: password
+            {{ else }}
+              value: {{ .Release.Name }}-postgresql
             {{- end }}
+            - name: DEPENDENCY_JOBS
+              value: keystone-job-migration
             {{- if .Values.sentry.enabled }}
             - name: SENTRY_DSN
             {{- if .Values.sentry.dsn }}

@@ -4,6 +4,12 @@ kind: postgresql
 metadata:
   name: keystone-db
 spec:
+  #postgresql:
+  #  version: "10"
+  #  parameters:
+  #    key1: value1
+  #    key2: value2
+
   teamId: "keystone"
   volume:
     size: 1Gi
