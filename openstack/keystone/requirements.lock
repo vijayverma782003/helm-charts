@@ -11,5 +11,5 @@ dependencies:
 - name: pgmetrics
   repository: file://../../common/pgmetrics
   version: 0.1.0
-digest: sha256:eaa169742b77c4034eb3d9b41c5acddbfed140ae329c5903041bfdaabeaa29ff
-generated: 2017-11-24T14:55:08.235099+01:00
+digest: sha256:3c4e4ca83acb15a1777e2b2dfcf20e2ec242ea242d437488361839f075121f08
+generated: 2018-03-28T18:15:22.526876+02:00

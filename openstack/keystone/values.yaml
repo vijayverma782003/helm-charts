@@ -2,6 +2,8 @@
 # This is a YAML-formatted file.
 # Declare name/value pairs to be passed into your templates.
 # name: value
+tags:
+  postgres: true
 
 global:
   tld: cloud.sap
@@ -228,6 +230,7 @@ memcached:
     enabled: true
 
 postgresql:
+  useOperator: false
   postgresDatabase: keystone
   postgresUser: postgres
   postgresPassword: secret

@@ -1,12 +1,12 @@
 name: postgres-operator
 version: 0.1.0
-description: Chart for Postgre-Operator
+description: Chart for Postgres-Operator
 keywords:
 - postgres-operator
 - postgres
 - database
 - sql
-- opertator
+- operator
 - cluster
 home: https://www.postgresql.org/
 sources:

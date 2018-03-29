@@ -1,18 +1,6 @@
-global:
-  tld: cloud.sap
-  region: local
-# specify the k8s keystone namespace if it differs from the current chart
-  keystoneNamespace: monsoon3
-  imageNamespace: monsoon
-
 ## postgres-operator image repository
 image: registry.opensource.zalan.do/acid/postgres-operator
-## postgres image version
-## ref: https://hub.docker.com/r/library/postgres/tags/
-##
 imageTag: 0f392c2
-
-namespace: vitess
 
 ## Specify a imagePullPolicy
 ## 'Always' if imageTag is 'latest', else set to 'IfNotPresent'
@@ -22,17 +10,20 @@ namespace: vitess
 
 replicas: 1
 
-
-super_username: postgres
-enable_teams_api: false
-
-
 operator:
   image: registry.opensource.zalan.do/acid/demospilo-10
   imageTag: 1.3-p3
-  pam_role_name: zalandos
+
+  #pam_role_name: zalandos
+
   pod_deletion_wait_timeout: 10m
   pod_label_wait_timeout: 10m
+  pod_terminate_grace_period: 5m
+  pdb_name_format: "{cluster}-postgres-pdb"
+
+  node_eol_label: "lifecycle-status:pending-decommission"
+  node_readiness_label: ""
+
   ready_wait_interval: 3s
   ready_wait_timeout: 30s
   replication_username: standby
@@ -40,17 +31,23 @@ operator:
   resource_check_timeout: 10m
   resync_period: 5m
   super_username: postgres
+
   enable_teams_api: "false"
   enable_team_superuser: "false"
-  team_admin_role: "admin"
-  teams_api_url: http://fake-teams-api.default.svc.cluster.local
+  #team_admin_role: "admin"
+  #teams_api_url: http://fake-teams-api.default.svc.cluster.local
+  #team_api_role_configuration: "log_statement:all"
+
   workers: "4"
-  enable_load_balancer: "true"
   api_port: "8080"
+  enable_load_balancer: "true"
   ring_log_lines: "100"
   cluster_history_entries: "1000"
-  pod_terminate_grace_period: 5m
-  pdb_name_format: "postgres-{cluster}-pdb"
-  node_eol_label: "lifecycle-status:pending-decommission"
-  node_readiness_label: ""
-  team_api_role_configuration: "log_statement:all"
+
+serviceaccount:
+  create: true
+  name: postgres-operator
+
+rbac:
+  create: false
+

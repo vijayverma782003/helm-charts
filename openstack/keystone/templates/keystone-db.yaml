@@ -1,23 +1,22 @@
+{{- if .Values.postgresql.useOperator }}
 apiVersion: "acid.zalan.do/v1"
 kind: postgresql
 metadata:
-  name: acid-stefan-wg
+  name: keystone-db
 spec:
-  teamId: "ACID"
+  teamId: "keystone"
   volume:
     size: 1Gi
   numberOfInstances: 2
   users:
     # database owner
-    zalando:
+    keystone:
     - superuser
     - createdb
 
-    # role for application foo
-    foo_user:
-  
   #databases: name->owner
   databases:
-    foo: zalando
+    keystone: keystone
   postgresql:
     version: "10"
+{{- end }}

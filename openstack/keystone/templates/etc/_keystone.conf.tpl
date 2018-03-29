@@ -98,7 +98,11 @@ key_repository = /fernet-keys
 max_active_keys = {{ .Values.api.fernet.maxActiveKeys | default 3 }}
 
 [database]
+{{- if .Values.postgresql.useOperator }}
+connection = postgresql://{{include "db_host" .}}:5432/keystone
+{{ else }}
 connection = postgresql://{{ default .Release.Name .Values.global.dbUser }}:{{ .Values.global.dbPassword }}@{{include "db_host" .}}:5432/{{ default .Release.Name .Values.postgresql.postgresDatabase}}
+{{- end }}
 
 [assignment]
 driver = sql

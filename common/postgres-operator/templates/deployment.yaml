@@ -1,7 +1,7 @@
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
-  name: postgress-operator
+  name: postgres-operator
   labels:
     app: {{ template "fullname" . }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
@@ -12,20 +12,20 @@ spec:
   template:
     metadata:
       labels:
-        name: postgress-operator
+        name: postgres-operator
     spec:
-      serviceAccountName: postgress-operator
+      serviceAccountName: postgres-operator
       containers:
-      - name: postgress-operator
+      - name: postgres-operator
         image: {{ .Values.image }}:{{ .Values.imageTag }}
         imagePullPolicy: {{ default "IfNotPresent" .Values.imagePullPolicy | quote }}
         env:
         # uncomment to overwrite a similar setting from operator configmap
         # if set to the empty string, watch the operator's own namespace
         # if set to the "*", listen to all namespaces
-        # - name: WATCHED_NAMESPACE
+        #- name: WATCHED_NAMESPACE
         #  valueFrom:
         #    fieldRef:
         #      fieldPath: metadata.namespace
         - name: CONFIG_MAP_NAME
-          value: "postgress-operator"
+          value: "postgres-operator"

@@ -1,48 +1,57 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: postgress-operator
+  name: postgres-operator
 data:
+  debug_logging: "true"
+
   # the env var with the same name in the operator pod may overwrite this value
   # if neither is set or evaluates to the empty string, listen to the operator's own namespace
   # if set to the "*", listen to all namespaces
-  #watched_namespace: vitess
-  service_account_name: postgress-operator
+  watched_namespace: {{ .Release.Namespace }}
+
+  service_account_name: {{ .Values.serviceaccount.name }}
+
   cluster_labels: application:spilo
   cluster_name_label: version
+
+  node_eol_label: "{{ .Values.operator.node_eol_label }}"
+  node_readiness_label: "{{ .Values.operator.node_readiness_label }}"
+
   pod_role_label: spilo-role
+  pod_deletion_wait_timeout: {{ .Values.operator.pod_deletion_wait_timeout }}
+  pod_label_wait_timeout: {{ .Values.operator.pod_label_wait_timeout }}
+  pod_terminate_grace_period: {{ .Values.operator.pod_terminate_grace_period }}
+  ready_wait_interval: {{ .Values.operator.ready_wait_interval }}
+  ready_wait_timeout: {{ .Values.operator.ready_wait_timeout }}
+
   db_hosted_zone: db.example.com
-  debug_logging: "true"
   master_dns_name_format: '{cluster}.{team}.staging.{hostedzone}'
   replica_dns_name_format: '{cluster}-repl.{team}.staging.{hostedzone}'
   docker_image: {{ .Values.operator.image }}:{{ .Values.operator.imageTag }}
-  secret_name_template: '{username}.{cluster}.credentials'
+  secret_name_template: '{cluster}.{username}.credentials'
   etcd_host: ""
-  infrastructure_roles_secret_name: postgresql-infrastructure-roles
-  oauth_token_secret_name: postgress-operator
-  pam_configuration: |
-    https://info.example.com/oauth2/tokeninfo?access_token= uid realm=/employees
-  pam_role_name: {{ .Values.operator.pam_role_name }}
-  pod_deletion_wait_timeout: {{ .Values.operator.pod_deletion_wait_timeout }}
-  pod_label_wait_timeout: {{ .Values.operator.pod_label_wait_timeout }}
-  ready_wait_interval: {{ .Values.operator.ready_wait_interval }}
-  ready_wait_timeout: {{ .Values.operator.ready_wait_timeout }}
+  #infrastructure_roles_secret_name: postgresql-infrastructure-roles
+  #oauth_token_secret_name: postgres-operator
+
+  enable_teams_api: "{{ .Values.operator.enable_teams_api }}"
+  enable_team_superuser: "{{ .Values.operator.enable_team_superuser }}"
+  team_admin_role: "{{ .Values.operator.team_admin_role }}"
+  teams_api_url: {{ .Values.operator.teams_api_url }}
+  team_api_role_configuration: "{{ .Values.operator.team_api_role_configuration }}"
+
+  #pam_configuration: |
+  #  https://info.example.com/oauth2/tokeninfo?access_token= uid realm=/employees
+  #pam_role_name: {{ .Values.operator.pam_role_name }}
+
   replication_username: {{ .Values.operator.replication_username }}
   resource_check_interval: {{ .Values.operator.resource_check_interval }}
   resource_check_timeout: {{ .Values.operator.resource_check_timeout }}
   resync_period: {{ .Values.operator.resync_period }}
   super_username: {{ .Values.operator.super_username }}
-  enable_teams_api: "{{ .Values.operator.enable_teams_api }}"
-  enable_team_superuser: "{{ .Values.operator.enable_team_superuser }}"
-  team_admin_role: "{{ .Values.operator.team_admin_role }}"
-  teams_api_url: {{ .Values.operator.teams_api_url }}
   workers: "{{ .Values.operator.workers }}"
   enable_load_balancer: "{{ .Values.operator.enable_load_balancer }}"
   api_port: "{{ .Values.operator.api_port }}"
   ring_log_lines: "{{ .Values.operator.ring_log_lines }}"
   cluster_history_entries: "{{ .Values.operator.cluster_history_entries }}"
-  pod_terminate_grace_period: {{ .Values.operator.pod_terminate_grace_period }}
-  pdb_name_format: "postgres-{cluster}-pdb"
-  node_eol_label: "{{ .Values.operator.node_eol_label }}"
-  node_readiness_label: "{{ .Values.operator.node_readiness_label }}"
-  team_api_role_configuration: "{{ .Values.operator.team_api_role_configuration }}"
+  pdb_name_format: "{{ .Values.operator.pdb_name_format }}"
