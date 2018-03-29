@@ -44,12 +44,12 @@ spec:
             - name: PGUSER
               valueFrom:
                 secretKeyRef:
-                  name: keystone-db.keystone.credentials
+                  name: keystone-db.postgres.credentials
                   key: username
             - name: PGPASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: keystone-db.keystone.credentials
+                  name: keystone-db.postgres.credentials
                   key: password
             {{ else }}
               value: {{ .Release.Name }}-postgresql
