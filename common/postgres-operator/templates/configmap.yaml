@@ -3,57 +3,73 @@ kind: ConfigMap
 metadata:
   name: postgres-operator
 data:
-  debug_logging: "true"
+  # spilo image (patroni / postgres bundle)
+  docker_image: {{ .Values.operator.image }}:{{ .Values.operator.imageTag }}
 
   # the env var with the same name in the operator pod may overwrite this value
   # if neither is set or evaluates to the empty string, listen to the operator's own namespace
   # if set to the "*", listen to all namespaces
   watched_namespace: {{ .Release.Namespace }}
 
-  service_account_name: {{ .Values.serviceaccount.name }}
+  # service-account of the operator
+  service_account_name: {{ .Values.serviceaccount.name | default "postgres-operator" }}
+
+  # database user names
+  # name for the superuser, set during initialization (initdb) and later used by Patroni to connect to the postgres.
+  super_username: {{ .Values.operator.super_username | default "postgres" }}
+  # replication username; the user will be created during initialization. Replicas will use this user to access master via streaming replication
+  replication_username: {{ .Values.operator.replication_username | default "standby" }}
+  # naming format of k8s secrets that contain user/pwd credentials of db users
+  secret_name_template: "{cluster}.{username}.credentials"
 
   cluster_labels: application:spilo
   cluster_name_label: version
 
-  node_eol_label: "{{ .Values.operator.node_eol_label }}"
-  node_readiness_label: "{{ .Values.operator.node_readiness_label }}"
+  node_eol_label: {{ .Values.operator.node_eol_label | default "lifecycle-status:pending-decommission" }}
+  node_readiness_label: {{ .Values.operator.node_readiness_label | default "" }}
 
+  # pod-disruption-budget?
+  pdb_name_format: {{ .Values.operator.pdb_name_format | default "{cluster}-postgres-pdb" | quote }}
+  # pod lifecycle configuration settings
   pod_role_label: spilo-role
-  pod_deletion_wait_timeout: {{ .Values.operator.pod_deletion_wait_timeout }}
-  pod_label_wait_timeout: {{ .Values.operator.pod_label_wait_timeout }}
-  pod_terminate_grace_period: {{ .Values.operator.pod_terminate_grace_period }}
-  ready_wait_interval: {{ .Values.operator.ready_wait_interval }}
-  ready_wait_timeout: {{ .Values.operator.ready_wait_timeout }}
+  pod_deletion_wait_timeout: {{ .Values.operator.pod_deletion_wait_timeout | default "10m" }}
+  pod_label_wait_timeout: {{ .Values.operator.pod_label_wait_timeout | default "10m" }}
+  pod_terminate_grace_period: {{ .Values.operator.pod_terminate_grace_period | default "5m" }}
+  ready_wait_interval: {{ .Values.operator.ready_wait_interval | default "3s" }}
+  ready_wait_timeout: {{ .Values.operator.ready_wait_timeout | default "30s" }}
 
-  db_hosted_zone: db.example.com
-  master_dns_name_format: '{cluster}.{team}.staging.{hostedzone}'
-  replica_dns_name_format: '{cluster}-repl.{team}.staging.{hostedzone}'
+  # postgres k8s service type switch ?
+  enable_load_balancer: "false"
+  # service type 'load-balancer' related annotations?
+  #db_hosted_zone: db.example.com
+  #master_dns_name_format: '{cluster}.{team}.staging.{hostedzone}'
+  #replica_dns_name_format: '{cluster}-repl.{team}.staging.{hostedzone}'
 
-  docker_image: {{ .Values.operator.image }}:{{ .Values.operator.imageTag }}
-
-  secret_name_template: '{cluster}.{username}.credentials'
   etcd_host: ""
   #infrastructure_roles_secret_name: postgresql-infrastructure-roles
   #oauth_token_secret_name: postgres-operator
 
-  enable_teams_api: "{{ .Values.operator.enable_teams_api }}"
-  enable_team_superuser: "{{ .Values.operator.enable_team_superuser }}"
-  team_admin_role: "{{ .Values.operator.team_admin_role }}"
-  teams_api_url: {{ .Values.operator.teams_api_url }}
-  team_api_role_configuration: "{{ .Values.operator.team_api_role_configuration }}"
-
+  # team-api settings
+  enable_teams_api: "false"
+  enable_team_superuser: "false"
+  #team_admin_role: "admin"
+  #teams_api_url: http://fake-teams-api.default.svc.cluster.local
+  #team_api_role_configuration: "log_statement:all"
   #pam_configuration: |
   #  https://info.example.com/oauth2/tokeninfo?access_token= uid realm=/employees
   #pam_role_name: {{ .Values.operator.pam_role_name }}
 
-  replication_username: {{ .Values.operator.replication_username }}
-  resource_check_interval: {{ .Values.operator.resource_check_interval }}
-  resource_check_timeout: {{ .Values.operator.resource_check_timeout }}
-  resync_period: {{ .Values.operator.resync_period }}
-  super_username: {{ .Values.operator.super_username }}
-  workers: "{{ .Values.operator.workers }}"
-  enable_load_balancer: "{{ .Values.operator.enable_load_balancer }}"
-  api_port: "{{ .Values.operator.api_port }}"
-  ring_log_lines: "{{ .Values.operator.ring_log_lines }}"
-  cluster_history_entries: "{{ .Values.operator.cluster_history_entries }}"
-  pdb_name_format: "{{ .Values.operator.pdb_name_format }}"
+  resource_check_interval: {{ .Values.operator.resource_check_interval | default "3s" }}
+  resource_check_timeout: {{ .Values.operator.resource_check_timeout | default "10m" }}
+  resync_period: {{ .Values.operator.resync_period | default "5m" }}
+
+  # what workers?
+  workers: {{ .Values.operator.workers | default "4" | quote }}
+
+  # Rest API ?
+  api_port: {{ .Values.operator.api_port | default "8080" | quote }}
+
+  # logging stuff
+  debug_logging: "true"
+  ring_log_lines: {{ .Values.operator.ring_log_lines | default "100" | quote }}
+  cluster_history_entries: {{ .Values.operator.cluster_history_entries | default "1000" | quote }}
