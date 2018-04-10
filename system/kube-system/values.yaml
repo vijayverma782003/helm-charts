@@ -34,6 +34,7 @@ nginx-ingress:
 
     extraArgs:
       enable-ssl-passthrough:
+      enable-dynamic-configuration:
       annotations-prefix: ingress.kubernetes.io
 
     stats:
