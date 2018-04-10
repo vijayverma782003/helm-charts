@@ -1,4 +1,4 @@
-{{- if .Values.ingress.public_service }}
+{{- if .Values.nginx-ingress.public_service }}
 kind: Service
 apiVersion: v1
 
@@ -16,5 +16,5 @@ spec:
       port: 443 
       targetPort: https
   externalIPs: 
-    - {{.Values.ingress.external_public_service_ip}}
+    - {{.Values.nginx-ingress.external_public_service_ip}}
 {{- end }}
