@@ -27,3 +27,7 @@ Service instances and graph instances cannot be deleted from UI
 
 Vora Ingestor fails with *Error*: 'default.Vora Ingestor: authentication failed: error in first SCRAM server message: expected 3 fields, got 1: []'
 * DSN requires a \ between user and pass, docs say / but that's wrong.
+
+Invalid Data Type when injesting javascript: 
+* https://github.wdf.sap.corp/velocity/vflow/issues/2170
+* PR to fix added to https://github.wdf.sap.corp/velocity/vflow/pull/2434
