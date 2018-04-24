@@ -29,5 +29,4 @@ Vora Ingestor fails with *Error*: 'default.Vora Ingestor: authentication failed:
 * DSN requires a \ between user and pass, docs say / but that's wrong.
 
 Invalid Data Type when injesting javascript: 
-* https://github.wdf.sap.corp/velocity/vflow/issues/2170
-* PR to fix added to https://github.wdf.sap.corp/velocity/vflow/pull/2434
+* PR to fix added recently
