@@ -40,7 +40,7 @@ spec:
     # wait time in seconds for the leader-election running loop iterations
     loop_wait: &loop_wait 10
     retry_timeout: 10
-    #maximum_lag_on_failover:
+    maximum_lag_on_failover: 33554432
 
   # pv settings
   volume:
@@ -62,5 +62,14 @@ spec:
 
 
   # backup ?
+
+  {{- if .Values.pgmetrics }}
+  # database metrics prometheus exporter
+  postgres_exporter:
+    image: "wrouesnel/postgres_exporter:latest"
+    cpu_request: "100m"
+    memory_request: "50Mi"
+    configmap_name: {{ template "fullname" . }}-pgmetrics
+  {{- end }}
 
 {{- end }}
