@@ -1,6 +1,6 @@
 ## postgres-operator image repository
 image: monsoon/postgres-operator
-imageTag: latest
+imageTag: "20180427100644"
 
 ## Specify a imagePullPolicy
 ## 'Always' if imageTag is 'latest', else set to 'IfNotPresent'
@@ -13,7 +13,7 @@ replicas: 1
 operator:
   # spilo image
   image: hub.global.cloud.sap/monsoon/spilo
-  imageTag: latest
+  imageTag: "20180427093220"
 
 serviceaccount:
   create: true
