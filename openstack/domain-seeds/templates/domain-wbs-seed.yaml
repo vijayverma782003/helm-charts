@@ -1,7 +1,7 @@
 apiVersion: "openstack.stable.sap.cc/v1"
 kind: "OpenstackSeed"
 metadata:
-  name: domain-cc3test-seed
+  name: domain-wbs-seed
   labels:
     app: {{ template "fullname" . }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
@@ -12,64 +12,49 @@ spec:
   - {{.Values.global.keystoneNamespace}}/keystone-seed
 
   domains:
-  - name: cc3test
-    description: 'Converged Cloud Testing'
-    roles:
-    - user: {{ .Values.cc3testAdminUser }}
-      role: admin
-    - user: {{ .Values.cc3testAdminUser }}
-      role: member
-    - user: {{ .Values.cc3testMemberUser }}
-      role: member
+  - name: wbs
+    description: Web Business Systems
 
     projects:
     - name: admin
-      description: 'CC-Test Administrators Project'
-      roles:
-      - user: {{ .Values.cc3testAdminUser }}
-        role: admin
-      - user: {{ .Values.cc3testAdminUser }}
-        role: member
-    - name: test
-      description: 'Test Project'
-      roles:
-      - user: {{ .Values.cc3testAdminUser }}
-        role: admin
-      - user: {{ .Values.cc3testAdminUser }}
-        role: member
-    - name: regression
-      description: 'CC-Test Regression Project'
-      roles:
-      - user: {{ .Values.cc3testAdminUser }}
-        role: admin
-      - user: {{ .Values.cc3testAdminUser }}
-        role: member
+      description: 'WBS Administrators Project'
+    - name: wbs-net-infra
+      description: 'Home of address-scopes, subnetpools, external networks, subnets for the wbs domain'
+    - name: wbs-shared-infra
+      description: 'Home of private networks, backup networks and routers for the wbs domain'
+    - name: support
+      description: 'Support (MOOPS)'
 
     groups:
-    - name: CC3TEST_DOMAIN_ADMINS
-      description: 'Test Administrators'
+    - name: WBS_DOMAIN_MEMBERS
       roles:
-      - domain: cc3test
+      - domain: wbs
+        role: member
+    - name: WBS_DOMAIN_ADMINS
+      roles:
+      - domain: wbs
         role: admin
-      - domain: cc3test
+      - domain: wbs
         role: member
       - project: admin
         role: admin
       - project: admin
         role: member
-      - project: test
-        role: admin
-      - project: test
+      - project: support
         role: member
-      - project: regression
+      - project: support
         role: admin
-      - project: regression
-        role: member
-    - name: CC3TEST_DOMAIN_MEMBERS
-      description: 'Test Members'
+
+    - name: WBS_DOMAIN_NETWORK_ADMINS
       roles:
-      - domain: cc3test
-        role: member
+      - project: wbs-net-infra
+        role: admin
+      - project: wbs-shared-infra
+        role: admin
+    - name: WBS_DOMAIN_RESOURCE_ADMINS
+      roles:
+      - domain: wbs
+        role: admin
 
     config:
       identity:
@@ -78,14 +63,15 @@ spec:
         page_size: 1000
         use_tls: false
         tls_req_cert: allow
-        query_scope: one
-{{- if eq .Values.keystoneRelease "newton" }}
-        use_dumb_member: false
-{{- end }}
         url: {{ .Values.ldapUrl | quote }}
         user: {{ .Values.ldapUser | quote }}
         password: {{ .Values.ldapPassword | quote }}
         suffix: {{ .Values.ldapSuffix | quote }}
+        query_scope: one
+{{- if eq .Values.keystoneRelease "newton" }}
+        use_dumb_member: false
+{{- end }}
+        user_tree_dn: OU=Identities,{{ .Values.ldapSuffix }}
         user_objectclass: user
         user_id_attribute: cn
         user_name_attribute: name
@@ -101,8 +87,7 @@ spec:
         user_allow_delete: False
         user_allow_update: False
 {{- end }}
-        user_tree_dn: OU=Identities,{{ .Values.ldapSuffix }}
-        user_filter: (memberOf=CN=CC3TEST_DOMAIN_USERS,OU=CC3TEST,OU=OSDomains,OU=CCloud,{{ .Values.ldapSuffix }})
+        user_filter: (memberOf=CN=WBS_DOMAIN_USERS,OU=WBS,OU=OSDomains,OU=CCloud,{{ .Values.ldapSuffix }})
         group_objectclass: group
         group_id_attribute: cn
         group_name_attribute: name
@@ -113,7 +98,7 @@ spec:
         group_allow_delete: False
         group_allow_update: False
 {{- end }}
-        group_tree_dn: OU=CC3TEST,OU=OSDomains,OU=CCloud,{{ .Values.ldapSuffix }}
+        group_tree_dn: OU=WBS,OU=OSDomains,OU=CCloud,{{ .Values.ldapSuffix }}
         use_pool: true
         pool_size: 10
         pool_connection_lifetime: 60

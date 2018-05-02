@@ -1,6 +1,6 @@
 ## postgres-operator image repository
-image: registry.opensource.zalan.do/acid/postgres-operator
-imageTag: 0f392c2
+image: monsoon/postgres-operator
+imageTag: "20180427100644"
 
 ## Specify a imagePullPolicy
 ## 'Always' if imageTag is 'latest', else set to 'IfNotPresent'
@@ -12,8 +12,8 @@ replicas: 1
 
 operator:
   # spilo image
-  image: registry.opensource.zalan.do/acid/demospilo-10
-  imageTag: 1.3-p3
+  image: hub.global.cloud.sap/monsoon/spilo
+  imageTag: "20180427093220"
 
 serviceaccount:
   create: true

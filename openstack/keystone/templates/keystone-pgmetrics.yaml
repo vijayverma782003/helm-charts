@@ -1,0 +1,15 @@
+{{- if and .Values.postgresql.useOperator .Values.pgmetrics }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "fullname" . }}-pgmetrics
+  labels:
+    app: {{ template "fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+    component: metrics
+data:
+  queries.yaml: |
+{{ toYaml .Values.pgmetrics.customMetrics | indent 4}}
+{{- end }}

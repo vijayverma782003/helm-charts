@@ -40,6 +40,10 @@ data:
 
   # postgres k8s service type switch ?
   enable_load_balancer: "false"
+  # wtf.. logging tells to use these, but once you do and set them to 'false' it starts to create loadbalancers
+  enable_master_load_balancer: "false"
+  enable_replica_load_balancer: "false"
+
   # service type 'load-balancer' related annotations?
   #db_hosted_zone: db.example.com
   #master_dns_name_format: '{cluster}.{team}.staging.{hostedzone}'
