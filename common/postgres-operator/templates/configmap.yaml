@@ -50,6 +50,7 @@ data:
   #oauth_token_secret_name: postgres-operator
 
   # team-api settings
+  # to enable oAuth postgres access
   enable_teams_api: "false"
   enable_team_superuser: "false"
   #team_admin_role: "admin"
@@ -63,7 +64,8 @@ data:
   resource_check_timeout: {{ .Values.operator.resource_check_timeout | default "10m" }}
   resync_period: {{ .Values.operator.resync_period | default "5m" }}
 
-  # what workers?
+  # number of go routines that process the cluster events: 
+  # https://github.com/zalando-incubator/postgres-operator/blob/6a29bbbcfad598b99020f34e3185c2db9070dd58/pkg/controller/controller.go#L224
   workers: {{ .Values.operator.workers | default "4" | quote }}
 
   # Rest API ?
