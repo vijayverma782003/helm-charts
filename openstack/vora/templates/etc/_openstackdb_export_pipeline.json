@@ -51,11 +51,14 @@
 				"y": 12,
 				"height": 80,
 				"width": 120,
+				"subengines": [
+					"main"
+				],
 				"config": {
 					"dsn": "v2://vora-tx-coordinator:10002/?binary=true",
 					"ingestionMode": "UPSERT",
 					"user": "default\\ingestor",
-					"password": "*******",
+					"password": "{{ $.vora.ingestor.password }}",
 					"databaseSchema": "OPENSTACK"
 				}
 			}
@@ -73,7 +76,7 @@
 					"main"
 				],
 				"config": {
-					"script": "package main\n\nimport (\n    \"bufio\"\n    \"bytes\"\n    \"encoding/json\"\n    \"fmt\"\n    \"regexp\"\n    \"strings\"\n)\n\nvar Output func(interface{})\nvar re = regexp.MustCompile(\"(.*)\\\\.(.*)(-.*)?.csv\")\n\nfunc main() {\n  // no special setup needed    \n}\n\nfunc schemaFromCSV(database string, table string, csv []byte) string {\n    r := bufio.NewReaderSize(bytes.NewReader(csv), 255)\n    line, _, _ := r.ReadLine()\n    columns := strings.Split(string(line), \",\")\n\n    fields := make([]map[string]interface{}, len(columns))\n    for i := range columns {\n        fields[i] = map[string]interface{}{\"name\": columns[i], \"type\": \"string\"}\n        if columns[i] != \"id\" {\n            fields[i][\"type\"] = []string{\"null\", \"string\"}\n        }\n    }\n    schema := map[string]interface{}{\n        \"namespace\": database+\".cloud.sap\",\n        \"type\": \"record\",\n        \"name\": table,\n        \"fields\": fields,\n    }\n    \n    b, err := json.Marshal(schema)\n\tif err != nil {\n\t\tfmt.Println(\"error:\", err)\n\t    return \"\"\n\t}\n\treturn string(b)\n}\n\n// here implement the function with the input port name, so data coming from this input will call this function\nfunc Input(val interface{}){\n\tmessage := val.(map[string]interface{})\n\t\n\tfmt.Println(\"ccloud input arrived\")\n\t\n\t// read contents\n\tbody := message[\"Body\"].([]byte)\n\tattr := message[\"Attributes\"].(map[string]interface{})\n\tnewAttr := make(map[string]interface{}, len(attr)+2)\n\tfor key := range attr {\n\t\tnewAttr[key] = attr[key]\n\t}\n\n\tfmt.Println(\"ccloud: contents read\")\n\t\n\t// enhance header\n    filename_seg := re.FindStringSubmatch(attr[\"storage.filename\"].(string))\n\tif len(filename_seg) < 2 {\n\t    fmt.Println(\"ccloud: ERROR filename cannot be parsed\")\n\t    return\n\t}\n\t\n\tdatabase := filename_seg[0]\n\ttable := filename_seg[1]\n    newAttr[\"vora.record.definition\"] = map[string]interface{}{\"recName\": table}\n    newAttr[\"avro.schema\"] = schemaFromCSV(database, table, body)\n\n    fmt.Println(\"ccloud: output header \", newAttr)\n\n    // build transformed message\n\tnewMessage := make(map[string]interface{}, 3)\n\tnewMessage[\"Attributes\"] = newAttr\n\tnewMessage[\"Encoding\"] = message[\"Encoding\"]\n\tnewMessage[\"Body\"] = body\n\n    // output\n    fmt.Println(\"ccloud output body: \", string(body))\n\tOutput(newMessage)\n}"
+					"script": "package main\n\nimport (\n    \"bufio\"\n    \"bytes\"\n    \"encoding/json\"\n    \"fmt\"\n    \"regexp\"\n    \"strings\"\n)\n\nvar Output func(interface{})\nvar re = regexp.MustCompile(\"(.*)\\\\.(.*)(-.*)?\\\\.csv\")\n\nfunc main() {\n  // no special setup needed    \n}\n\nfunc schemaFromCSV(database string, table string, csv []byte) string {\n    r := bufio.NewReaderSize(bytes.NewReader(csv), 1024)\n    line, _, _ := r.ReadLine()\n    columns := strings.Split(string(line), \",\")\n\n    fields := make([]map[string]interface{}, len(columns))\n    for i := range columns {\n        fields[i] = map[string]interface{}{\"name\": columns[i], \"type\": \"string\"}\n        if columns[i] != \"id\" {\n            fields[i][\"type\"] = []string{\"null\", \"string\"}\n        }\n    }\n    schema := map[string]interface{}{\n        \"namespace\": database,\n        \"type\": \"record\",\n        \"name\": table,\n        \"fields\": fields,\n    }\n    \n    b, err := json.Marshal(schema)\n\tif err != nil {\n\t\tfmt.Println(\"error:\", err)\n\t    return \"\"\n\t}\n\treturn string(b)\n}\n\n// here implement the function with the input port name, so data coming from this input will call this function\nfunc Input(val interface{}){\n\tmessage := val.(map[string]interface{})\n\t\n\tfmt.Println(\"ccloud input arrived\")\n\t\n\t// read contents\n\tbody := message[\"Body\"].([]byte)\n\tattr := message[\"Attributes\"].(map[string]interface{})\n\tnewAttr := make(map[string]interface{}, len(attr)+2)\n\tfor key := range attr {\n\t\tnewAttr[key] = attr[key]\n\t}\n\n\tfmt.Println(\"ccloud: contents read\")\n\t\n\t// enhance header\n    filename_seg := re.FindStringSubmatch(attr[\"storage.filename\"].(string))\n\tif len(filename_seg) < 3 {\n\t    fmt.Println(\"ccloud: ERROR filename cannot be parsed\")\n\t    return\n\t}\n\t\n\tdatabase := filename_seg[1]\n\ttable := filename_seg[2]\n    newAttr[\"vora.record.definition\"] = map[string]interface{}{\"recName\": table}\n    newAttr[\"avro.schema\"] = schemaFromCSV(database, table, body)\n\n    fmt.Println(\"ccloud: output header \", newAttr)\n\n    // build transformed message\n\tnewMessage := make(map[string]interface{}, 3)\n\tnewMessage[\"Attributes\"] = newAttr\n\tnewMessage[\"Encoding\"] = message[\"Encoding\"]\n\tnewMessage[\"Body\"] = body\n\n    // output\n    fmt.Println(\"ccloud output body: \", string(body))\n\tOutput(newMessage)\n}"
 				},
 				"additionalinports": [
 					{
@@ -110,7 +113,7 @@
 			"component": "com.sap.util.wiretap",
 			"metadata": {
 				"label": "Wiretap",
-				"x": 703.9999990463257,
+				"x": 711.9999990463257,
 				"y": 12,
 				"height": 80,
 				"width": 120,
@@ -118,6 +121,17 @@
 				"config": {
 					"spoolSize": 10
 				}
+			}
+		},
+		"graphterminator1": {
+			"component": "com.sap.util.graphTerminator",
+			"metadata": {
+				"label": "Graph Terminator",
+				"x": 1027,
+				"y": 3,
+				"height": 80,
+				"width": 120,
+				"config": {}
 			}
 		}
 	},
@@ -164,7 +178,7 @@
 		},
 		{
 			"metadata": {
-				"points": "659.9999990463257,52 699.9999990463257,52"
+				"points": "659.9999990463257,52 707.9999990463257,52"
 			},
 			"src": {
 				"port": "out",
@@ -177,7 +191,7 @@
 		},
 		{
 			"metadata": {
-				"points": "827.9999990463257,52 867.9999990463257,52"
+				"points": "835.9999990463257,52 867.9999990463257,52"
 			},
 			"src": {
 				"port": "out",
@@ -186,6 +200,19 @@
 			"tgt": {
 				"port": "in",
 				"process": "voraingestor1"
+			}
+		},
+		{
+			"metadata": {
+				"points": "995.9999990463257,52 1009.5,52 1009.5,43 1023,43"
+			},
+			"src": {
+				"port": "out",
+				"process": "voraingestor1"
+			},
+			"tgt": {
+				"port": "stop",
+				"process": "graphterminator1"
 			}
 		}
 	],

@@ -13,6 +13,7 @@ Generated pipeline images produced by modeller are always published into 'vora' 
 
 Generated pipeline images always use registry host name as respository name
 * Added a DNS entry pointing to registry IP address 
+* Update service configuration attribute 'Pipeline Modeler: Docker registry for Pipeline Modeler images' accordingly
 
 Pipeline modeller cannot build images because docker build has no internet
 * Changed deployment vflow-... to use dnsPolicy: ClusterFirstWithHostNet (instead of ClusterFirst)
