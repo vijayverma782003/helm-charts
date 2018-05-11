@@ -57,6 +57,7 @@ spec:
       containers:
         - name: proxy
           image: {{ include "swift_image" $ }}
+          imagePullPolicy: Always
           command:
             - /usr/bin/dumb-init
           args:
