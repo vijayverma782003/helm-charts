@@ -28,5 +28,5 @@ Service instances and graph instances cannot be deleted from UI
 Vora Ingestor fails with *Error*: 'default.Vora Ingestor: authentication failed: error in first SCRAM server message: expected 3 fields, got 1: []'
 * DSN requires a \ between user and pass, docs say / but that's wrong.
 
-Invalid Data Type when injesting javascript: 
+Invalid Data Type when ingesting javascript: 
 * PR to fix added recently
