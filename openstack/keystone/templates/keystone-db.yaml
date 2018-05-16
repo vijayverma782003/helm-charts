@@ -61,15 +61,20 @@ spec:
     keystone: keystone
 
 
-  # backup ?
+  # restore
+  #clone: 
+    #cluster: "keystone-db"
+    #uid: "7a2f7143-4fb1-11e8-bace-08002783bf75"
+    #timestamp: "2018-05-04T15:45:41.000Z"
 
   {{- if .Values.pgmetrics }}
   # database metrics prometheus exporter
   postgres_exporter:
-    image: "wrouesnel/postgres_exporter:latest"
+    image: "hub.global.cloud.sap/monsoon/postgres-exporter:20180511084212"
     cpu_request: "100m"
     memory_request: "50Mi"
     configmap_name: {{ template "fullname" . }}-pgmetrics
+    database: keystone
   {{- end }}
 
 {{- end }}

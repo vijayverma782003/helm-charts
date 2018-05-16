@@ -72,10 +72,14 @@ data:
   # https://github.com/zalando-incubator/postgres-operator/blob/6a29bbbcfad598b99020f34e3185c2db9070dd58/pkg/controller/controller.go#L224
   workers: {{ .Values.operator.workers | default "4" | quote }}
 
-  # Rest API ?
+  # Rest API for basic operator metrics
   api_port: {{ .Values.operator.api_port | default "8080" | quote }}
 
   # logging stuff
   debug_logging: "true"
   ring_log_lines: {{ .Values.operator.ring_log_lines | default "100" | quote }}
   cluster_history_entries: {{ .Values.operator.cluster_history_entries | default "1000" | quote }}
+
+  # Spilo configuration
+  pod_environment_configmap: configmap-db-spilo
+  wal_s3_bucket: d058695
