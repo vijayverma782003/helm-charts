@@ -26,13 +26,13 @@ log_level = INFO
 [pipeline:main]
 {{- if le $swift_release "mitaka" }}
 # Mitaka pipeline
-pipeline = catch_errors gatekeeper healthcheck proxy-logging cache cname_lookup domain_remap bulk tempurl ratelimit authtoken{{if $cluster.ratelimit_enabled }} watcher {{ end }}{{ if $cluster.s3api_enabled }}swift3 s3token{{ end }} keystoneauth sysmeta-domain-override staticweb container-quotas account-quotas slo dlo versioned_writes proxy-logging proxy-server
+pipeline = catch_errors gatekeeper healthcheck proxy-logging cache cname_lookup domain_remap bulk tempurl authtoken{{if $cluster.watcher_enabled }} watcher {{ end }}{{if $cluster.ratelimit_enabled }} sapcc-ratelimit {{ end }}{{ if $cluster.s3api_enabled }}swift3 s3token{{ end }} keystoneauth sysmeta-domain-override staticweb container-quotas account-quotas slo dlo versioned_writes proxy-logging proxy-server
 {{- else if eq $swift_release "pike" }}
 # Pike pipeline
-pipeline = catch_errors gatekeeper healthcheck proxy-logging cache cname_lookup domain_remap bulk tempurl ratelimit authtoken{{if $cluster.ratelimit_enabled }} watcher {{ end }}{{ if $cluster.s3api_enabled }}swift3 s3token{{ end }} keystoneauth sysmeta-domain-override staticweb copy container-quotas account-quotas slo dlo versioned_writes proxy-logging proxy-server
+pipeline = catch_errors gatekeeper healthcheck proxy-logging cache cname_lookup domain_remap bulk tempurl authtoken{{if $cluster.watcher_enabled }} watcher {{ end }}{{if $cluster.ratelimit_enabled }} sapcc-ratelimit {{ end }}{{ if $cluster.s3api_enabled }}swift3 s3token{{ end }} keystoneauth sysmeta-domain-override staticweb copy container-quotas account-quotas slo dlo versioned_writes proxy-logging proxy-server
 {{- else if ge $swift_release "queens" }}
 # Queens or > pipeline
-pipeline = catch_errors gatekeeper healthcheck proxy-logging cache cname_lookup domain_remap bulk tempurl ratelimit authtoken{{if $cluster.ratelimit_enabled }} watcher {{ end }}{{ if $cluster.s3api_enabled }}swift3 s3token{{ end }} keystoneauth sysmeta-domain-override staticweb copy container-quotas account-quotas slo dlo versioned_writes symlink proxy-logging proxy-server
+pipeline = catch_errors gatekeeper healthcheck proxy-logging cache cname_lookup domain_remap bulk tempurl authtoken{{if $cluster.watcher_enabled }} watcher {{ end }}{{if $cluster.ratelimit_enabled }} sapcc-ratelimit {{ end }}{{ if $cluster.s3api_enabled }}swift3 s3token{{ end }} keystoneauth sysmeta-domain-override staticweb copy container-quotas account-quotas slo dlo versioned_writes symlink proxy-logging proxy-server
 {{- end }}
 # TODO: sentry middleware (between "proxy-logging" and "proxy-server") disabled temporarily because of weird exceptions tracing into raven, need to check further
 
@@ -128,18 +128,11 @@ use = egg:sapcc-swift-addons#sysmeta_domain_override
 
 [filter:watcher]
 use = egg:watcher-middleware#watcher
-service = object-storage
+service = object-store
 
 [filter:ratelimit]
-use = egg:swift#ratelimit
-set log_name = proxy-ratelimit
-max_sleep_time_seconds = 20
-log_sleep_time_seconds = 18
-account_ratelimit = 10
-container_ratelimit_0 = 50
-container_ratelimit_100 = 50
-container_listing_ratelimit_0 = 100
-container_listing_ratelimit_100 = 100
+use = egg:sapcc-ratelimit-middleware#rate-limit
+config_file = /swift-etc-cluster/ratelimit.yaml
 
 [filter:cname_lookup]
 use = egg:swift#cname_lookup

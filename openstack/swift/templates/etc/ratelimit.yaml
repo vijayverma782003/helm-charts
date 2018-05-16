@@ -1,0 +1,23 @@
+# custom rate limit response
+rate_limit_response:
+  code: 429
+  headers:
+    Content-Type: 'text/html; charset=UTF-8'
+  body: '<html> <head> <title>Rate Limit Exceeded</title> </head> <body> <h1>Rate Limit Exceeded</h1> </body> </html>'
+
+# custom blacklist response
+blacklist_response:
+  code: 497
+  headers:
+    Content-Type: 'text/html; charset=UTF-8'
+  body: '<html> <head> <title>Your account has been blacklisted</title> </head> <body> <h1>Your account has been blacklisted</h1> </body> </html>'
+
+#default limits applied to each project
+limits:
+  account/container:
+    - type: update
+      limit: 2r/m
+      strategy: slidingwindow
+    - type: create
+      limit: 5r/30m
+      strategy: slidingwindow
