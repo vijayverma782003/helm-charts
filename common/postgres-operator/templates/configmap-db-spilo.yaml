@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: configmap-db-spilo
 data:
-  USE_WALE: 'true'
+  USE_WALE: 'false'
   WAL_S3_BUCKET: d058695
   BACKUP_SCHEDULE: '* * * * *'
   AWS_ACCESS_KEY_ID: 04b6ad57fb0b41f9a95c2fc5b3c4792e

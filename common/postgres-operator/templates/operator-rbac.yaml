@@ -10,6 +10,7 @@ rules:
   - postgresqls
   verbs:
   - "*"
+
 - apiGroups:
   - apiextensions.k8s.io
   resources:
@@ -17,12 +18,17 @@ rules:
   verbs:
   - create
   - get
+
 - apiGroups:
   - ""
   resources:
   - configmaps
   verbs:
+  - create
   - get
+  - list
+  - patch
+
 - apiGroups:
   - ""
   resources:
@@ -31,6 +37,9 @@ rules:
   - create
   - delete
   - get
+  - list
+  - patch
+
 - apiGroups:
   - ""
   resources:
@@ -40,6 +49,8 @@ rules:
   - update
   - delete
   - get
+  - patch
+
 - apiGroups:
   - ""
   resources:
@@ -48,6 +59,7 @@ rules:
   - get
   - list
   - watch
+
 - apiGroups:
   - ""
   resources:
@@ -56,6 +68,7 @@ rules:
   - delete
   - get
   - list
+
 - apiGroups:
   - ""
   resources:
@@ -64,6 +77,7 @@ rules:
   - get
   - list
   - update # only for resizing AWS volumes
+
 - apiGroups:
   - ""
   resources:
@@ -73,6 +87,8 @@ rules:
   - get
   - list
   - watch
+  - patch
+
 - apiGroups:
   - ""
   resources:
@@ -82,18 +98,24 @@ rules:
   - delete
   - get
   - patch
+
 - apiGroups:
   - apps
   - serviceaccount
   resources:
   - statefulsets
   verbs: ["*"]
+
 - apiGroups:
   - ""
   resources:
   - namespaces
   verbs:
   - get
+  - list
+  - create
+  - patch
+
 - apiGroups:
   - policy
   resources:
