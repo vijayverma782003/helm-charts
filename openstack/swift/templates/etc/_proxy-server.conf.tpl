@@ -12,6 +12,9 @@ expose_info = true
 # NOTE: value for prod, was 512 in staging before
 max_clients = 1024
 backlog = 4096
+{{- if $context.swift_client_timeout }}
+client_timeout = {{ $context.swift_client_timeout }}
+{{- end }}
 log_statsd_host = localhost
 log_statsd_port = 9125
 log_statsd_default_sample_rate = 1.0
@@ -26,13 +29,13 @@ log_level = INFO
 [pipeline:main]
 {{- if le $swift_release "mitaka" }}
 # Mitaka pipeline
-pipeline = catch_errors gatekeeper healthcheck proxy-logging cache cname_lookup domain_remap bulk tempurl ratelimit authtoken keystone sysmeta-domain-override staticweb container-quotas account-quotas slo dlo versioned_writes proxy-logging proxy-server
+pipeline = catch_errors gatekeeper healthcheck proxy-logging cache cname_lookup domain_remap bulk tempurl ratelimit authtoken{{ if and $context.s3api_enabled $cluster.seed }} swift3 s3token{{ end }} keystoneauth sysmeta-domain-override staticweb container-quotas account-quotas slo dlo versioned_writes proxy-logging proxy-server
 {{- else if eq $swift_release "pike" }}
 # Pike pipeline
-pipeline = catch_errors gatekeeper healthcheck proxy-logging cache cname_lookup domain_remap bulk tempurl ratelimit authtoken keystone sysmeta-domain-override staticweb copy container-quotas account-quotas slo dlo versioned_writes proxy-logging proxy-server
+pipeline = catch_errors gatekeeper healthcheck proxy-logging cache cname_lookup domain_remap bulk tempurl ratelimit authtoken{{ if and $context.s3api_enabled $cluster.seed }} swift3 s3token{{ end }} keystoneauth sysmeta-domain-override staticweb copy container-quotas account-quotas slo dlo versioned_writes proxy-logging proxy-server
 {{- else if ge $swift_release "queens" }}
 # Queens or > pipeline
-pipeline = catch_errors gatekeeper healthcheck proxy-logging cache cname_lookup domain_remap bulk tempurl ratelimit authtoken keystone sysmeta-domain-override staticweb copy container-quotas account-quotas slo dlo versioned_writes symlink proxy-logging proxy-server
+pipeline = catch_errors gatekeeper healthcheck proxy-logging cache cname_lookup domain_remap bulk tempurl ratelimit authtoken{{ if and $context.s3api_enabled $cluster.seed }} swift3 s3token{{ end }} keystoneauth sysmeta-domain-override staticweb copy container-quotas account-quotas slo dlo versioned_writes symlink proxy-logging proxy-server
 {{- end }}
 # TODO: sentry middleware (between "proxy-logging" and "proxy-server") disabled temporarily because of weird exceptions tracing into raven, need to check further
 
@@ -80,12 +83,17 @@ use = egg:swift#dlo
 [filter:gatekeeper]
 use = egg:swift#gatekeeper
 
-[filter:keystone]
+# swift3 requires keystoneauth with exact name
+[filter:keystoneauth]
 use = egg:swift#keystoneauth
 operator_roles = admin, swiftoperator
 is_admin = false
 cache = swift.cache
-reseller_admin_role = swiftreseller
+{{- if $cluster.seed }}
+reseller_admin_role = {{ $cluster.reseller_admin_role | default "swiftreseller" }}
+{{- else }}
+reseller_admin_role = {{ required "A valid cluster.reseller_admin_role entry required!" $cluster.reseller_admin_role }}
+{{- end }}
 default_domain_id = default
 {{- if $context.debug }}
 set log_level = DEBUG
@@ -177,6 +185,17 @@ use = egg:swift#copy
 [filter:symlink]
 use = egg:swift#symlink
 {{- end}}
+
+[filter:swift3]
+use = egg:swift3#swift3
+location = {{ $context.global.region }}
+# The standard swift proxy logging is needed,
+force_swift_request_proxy_log = true
+
+[filter:s3token]
+use = egg:swift3#s3token
+auth_uri = {{$cluster.keystone_auth_uri}}
+auth_version = 3
 
 # [filter:statsd]
 # use = egg:ops-middleware#statsd

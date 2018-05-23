@@ -7,15 +7,14 @@ metadata:
 
 spec:
   requires:
-#  - openstack/keystone-seed  # uncomment once keystone brings its own seed
-#  - openstack/neutron-seed  # uncomment once neutron brings its own seed
+  - {{ default .Release.Namespace .Values.global.keystoneNamespace }}/keystone-seed
+  - monsoon3/neutron-seed
 #  - openstack/nova-seed  # uncomment once nova brings its own seed
 #  - openstack/cinder-seed  # uncomment once cinder brings its own seed
-#  - openstack/manilla-seed  # uncomment once manilla brings its own seed
-#  - openstack/barbican-seed  # uncomment once barbican brings its own seed
-#  - openstack/designate-seed  # uncomment once designate brings its own seed
+  - monsoon3/manila-seed
+  - monsoon3/barbican-seed
+  - monsoon3/designate-seed
   - swift/swift-seed
-  - monsoon3/domain-bn-seed
   - monsoon3/domain-bs-seed
   - monsoon3/domain-cc3test-seed
   - monsoon3/domain-ccadmin-seed
@@ -25,6 +24,7 @@ spec:
   - monsoon3/domain-hec-seed
   - monsoon3/domain-monsoon3-seed
   - monsoon3/domain-s4-seed
+  - monsoon3/domain-wbs-seed
 
   roles:
     - cloud_resource_admin
@@ -103,13 +103,6 @@ spec:
         - domain: ccadmin
           role: resource_admin
 
-    - name: bn
-      groups:
-      - name: BN_DOMAIN_RESOURCE_ADMINS
-        roles:
-        - domain: bn
-          role: resource_admin
-
     - name: bs
       groups:
       - name: BS_DOMAIN_RESOURCE_ADMINS
@@ -119,7 +112,7 @@ spec:
 
     - name: cc3test
       groups:
-      - name: Administrators
+      - name: CC3TEST_DOMAIN_RESOURCE_ADMINS
         roles:
         - domain: cc3test
           role: resource_admin
@@ -157,6 +150,13 @@ spec:
       - name: S4_DOMAIN_RESOURCE_ADMINS
         roles:
         - domain: s4
+          role: resource_admin
+
+    - name: wbs
+      groups:
+      - name: WBS_DOMAIN_RESOURCE_ADMINS
+        roles:
+        - domain: wbs
           role: resource_admin
 
 {{- end -}}

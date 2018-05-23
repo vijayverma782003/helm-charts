@@ -9,6 +9,9 @@ bind_port = 6000
 workers = 12
 max_clients = 1024
 backlog = 8192
+{{- if .Values.swift_client_timeout }}
+client_timeout = {{ .Values.swift_client_timeout }}
+{{- end }}
 log_statsd_host = localhost
 log_statsd_port = 9125
 log_statsd_default_sample_rate = 1.0
@@ -25,14 +28,18 @@ pipeline = healthcheck recon object-server
 
 [app:object-server]
 use = egg:swift#object
-allowed_headers = Content-Disposition, Content-Encoding, X-Delete-At, X-Object-Manifest, X-Static-Large-Object, Cache-Control
+{{- if .Values.s3api_enabled }}
+allowed_headers = Cache-Control, Content-Disposition, Content-Encoding, Content-Language, Expires, X-Delete-At, X-Object-Manifest, X-Robots-Tag, X-Static-Large-Object
+{{- else}}
+allowed_headers = Content-Disposition, Content-Encoding, X-Delete-At, X-Object-Manifest, X-Static-Large-Object
+{{- end}}
 
 [object-replicator]
-concurrency = 2
+concurrency = {{ .Values.object_replicator_concurrency }}
 
 [object-updater]
 interval = 60
-concurrency = 2
+concurrency = {{ .Values.object_updater_concurrency }}
 
 [object-auditor]
 

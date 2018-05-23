@@ -23,7 +23,6 @@ spec:
       labels:
         name: manila-scheduler
       annotations:
-        pod.beta.kubernetes.io/hostname: manila-scheduler
         configmap-etc-hash: {{ include (print .Template.BasePath "/etc-configmap.yaml") . | sha256sum }}
     spec:
       containers:
@@ -61,12 +60,10 @@ spec:
               subPath: policy.json
               readOnly: true
             - name: manila-etc
-              mountPath: /etc/manila/logging.conf
-              subPath: logging.conf
+              mountPath: /etc/manila/logging.ini
+              subPath: logging.ini
               readOnly: true
-      {{- if and (eq .Capabilities.KubeVersion.Major "1") (ge .Capabilities.KubeVersion.Minor "7") }}
       hostname: manila-scheduler
-      {{- end }}
       volumes:
         - name: etcmanila
           emptyDir: {}

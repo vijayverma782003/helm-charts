@@ -16,10 +16,7 @@ spec:
     description: 'Converged Cloud Testing'
 
     groups:
-    - name: Administrators
-      description: 'Test Administrators'
-      users:
-      - test_admin
+    - name: CC3TEST_DOMAIN_ADMINS
       roles:
       - project: admin
         role: admin
@@ -32,12 +29,33 @@ spec:
       - project: admin
         role: compute_admin
       - project: admin
+        role: resource_admin
+      - project: admin
         role: member
       - project: admin
         role: audit_viewer
 
     projects:
     - name: admin
+      roles:
+      - user: {{.Values.global.openstack.users.admin.username}}
+        role: admin
+      - user: {{.Values.global.openstack.users.admin.username}}
+        role: volume_admin
+      - user: {{.Values.global.openstack.users.admin.username}}
+        role: sharedfilesystem_admin
+      - user: {{.Values.global.openstack.users.admin.username}}
+        role: network_admin
+      - user: {{.Values.global.openstack.users.admin.username}}
+        role: compute_admin
+      - user: {{.Values.global.openstack.users.admin.username}}
+        role: resource_admin
+      - user: {{.Values.global.openstack.users.admin.username}}
+        role: member
+      - user: {{.Values.global.openstack.users.admin.username}}
+        role: audit_viewer
+      - user: {{.Values.global.openstack.users.member.username}}
+        role: member
       network_quota:
         subnetpool: 5
         subnet: 5

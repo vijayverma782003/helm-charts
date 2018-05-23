@@ -21,22 +21,26 @@ spec:
       labels:
         component: elasticsearch
       annotations:
-#        checksum/logstash-etc-configmap.yaml: {{ include "hermes/templates/elasticsearch-etc-configmap.yaml" . | sha256sum }}
-        pod.alpha.kubernetes.io/init-containers: '[
-        {
-            "name": "init",
-            "image": "busybox",
-            "imagePullPolicy": "IfNotPresent",
-            "command": ["sh", "-c", "chown -R 1000:1000 /data"],
-            "volumeMounts": [
-                {
-                  "name": "data",
-                  "mountPath": "/data"
-                }
-            ]
-        }
-    ]' 
+        checksum/elasticsearch-etc-configmap.yaml: {{ include "hermes/templates/elasticsearch-etc-configmap.yaml" . | sha256sum }}
     spec:
+      initContainers:
+        - name: esinit
+          image: busybox
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/sh
+            - -c
+            - chown 1000:1000 /data/ &&
+              rm -rf /data/es-config &&
+              mkdir /data/es-config &&
+              cp /hermes-etc/* /data/es-config &&
+              mkdir /data/es-config/scripts &&
+              mkdir -p /data/snapshots
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: hermes-etc
+              mountPath: /hermes-etc
       nodeSelector:
         zone: farm
       volumes:
@@ -53,18 +57,15 @@ spec:
           command:
             - elasticsearch
           args:
-            - "-Epath.conf=/hermes-etc"
+            # read the config from the provided real config
+            - "-Epath.conf=/data/es-config/"
           env:
-#            - name: COMMAND
-#              value: " elasticsearch -Epath.conf=/hermes-etc/ "
-            - name: NAMESPACE
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.namespace
-            - name: ES_JAVA_OPTS
-              value: "-Xms8192m -Xmx8192m"
+            # we still have to tell elasticsearch where to find out jvm.options
+            - name: ES_JVM_OPTIONS
+              value: "/data/es-config/jvm.options"
           volumeMounts:
-            - name: hermes-etc
-              mountPath: /hermes-etc
+# this is not needed anymore as we copy the contents to the data volume in the init container already
+#            - name: hermes-etc
+#              mountPath: /hermes-etc
             - name: data
               mountPath: /data
