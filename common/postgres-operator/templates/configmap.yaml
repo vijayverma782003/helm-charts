@@ -81,5 +81,5 @@ data:
   cluster_history_entries: {{ .Values.operator.cluster_history_entries | default "1000" | quote }}
 
   # Spilo configuration
-  pod_environment_configmap: configmap-db-spilo
-  wal_s3_bucket: d058695
+  #pod_environment_configmap: configmap-db-spilo
+  #wal_s3_bucket: d058695
