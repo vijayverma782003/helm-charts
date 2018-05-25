@@ -104,7 +104,6 @@ rabbitmq:
       password: secret
 
 mysql_metrics:
-  name: designate
   db_name: designate
   db_user: root
   db_password: DEFINED-IN-REGION-CHART
@@ -187,3 +186,24 @@ logging:
         sqlalchemy:
             handlers: stdout, sentry
             level: WARNING
+        auditmiddleware:
+            handlers: stdout, sentry
+            level: INFO
+
+audit:
+  enabled: true
+  # do by default not attach the request payloads of create/update calls to the event
+  record_payloads: true
+  metrics_enabled: true
+  # how many messages to buffer before dumping to log (when rabbit is down or too slow)
+  mem_queue_size: 1000
+
+rabbitmq_notifications:
+  name: designate
+  users:
+    default:
+      user: rabbitmq
+      password: DEFINED-IN-SECRETS
+    admin:
+      user: admin
+      password: DEFINED-IN-SECRETS

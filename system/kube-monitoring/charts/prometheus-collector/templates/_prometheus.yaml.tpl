@@ -291,6 +291,9 @@ scrape_configs:
     regex: ^(\d).+
     replacement: http_${1}xx
     target_label: __param_module
+  - source_labels: [__meta_kubernetes_ingress_annotation_prometheus_io_probe_path]
+    regex: ^(\/.+)
+    target_label: __meta_kubernetes_ingress_path
   - source_labels: [__meta_kubernetes_ingress_scheme,__address__,__meta_kubernetes_ingress_path]
     regex: (.+);(.+);(.+)
     replacement: ${1}://${2}${3}
@@ -305,8 +308,39 @@ scrape_configs:
     target_label: kubernetes_namespace
   - source_labels: [__meta_kubernetes_ingress_name]
     target_label: ingress_name
+  - source_labels: [__param_module]
+    target_label: module
   - target_label: region_probed_from
     replacement: {{ $region }}
+{{ end }}
+
+{{ if .Values.blackbox_exporter }}
+{{ if .Values.blackbox_exporter.tcp_probe_targets }}
+{{ range $region := .Values.global.regions }}
+- job_name: 'blackbox-tcp-{{ $region }}'
+  metrics_path: /probe
+  scrape_interval: 15s
+  params:
+    module: [tcp_connect]
+  static_configs:
+    - targets:
+      {{- range $.Values.blackbox_exporter.tcp_probe_targets }}
+      - {{ . }}
+      {{- end }}
+  scheme: https
+  relabel_configs:
+  - source_labels: [__address__]
+    target_label: __param_target
+  - source_labels: [__param_target]
+    target_label: instance
+  - target_label: __address__
+    replacement: prober.{{ $region }}.cloud.sap
+  - source_labels: [__param_module]
+    target_label: module
+  - target_label: region_probed_from
+    replacement: {{ $region }}
+{{ end }}
+{{ end }}
 {{ end }}
 
 # Static Targets 

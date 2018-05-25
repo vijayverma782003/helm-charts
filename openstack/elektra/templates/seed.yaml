@@ -10,7 +10,6 @@ metadata:
 spec:
   requires:
   - monsoon3/domain-default-seed
-  - monsoon3/domain-bn-seed
   - monsoon3/domain-bs-seed
   - monsoon3/domain-ccadmin-seed
   - monsoon3/domain-hcp03-seed
@@ -18,8 +17,8 @@ spec:
   - monsoon3/domain-hec-seed
   - monsoon3/domain-monsoon3-seed
   - monsoon3/domain-s4-seed
+  - monsoon3/domain-wbs-seed
   - monsoon3/domain-cc3test-seed
-  - monsoon3/domain-cc3test2-seed
 
   roles:
   - cloud_compute_admin
@@ -62,8 +61,6 @@ spec:
         role: admin
       - domain: ccadmin
         role: admin
-      - domain: bn
-        role: admin
       - domain: bs
         role: admin
       - domain: hcp03
@@ -76,7 +73,7 @@ spec:
         role: admin
       - domain: s4
         role: admin
-      - domain: cc3test
+      - domain: wbs
         role: admin
-      - domain: cc3test2
+      - domain: cc3test
         role: admin

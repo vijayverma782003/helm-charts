@@ -44,9 +44,9 @@ Additionally, the label is used for routing and inhibition.
 
 ### Context
 
-The idea here is that `severity=critical` alerts are more important than `severity=warning`. Send both is unnecessary, so only the `critical` alert will be send.
+The idea here is that `severity=critical` alerts are more important than `severity=warning`. Sending both is unnecessary, so only the `critical` alert will be send.
 
-The `context` label is used grouping these inhibitions. Put alerts for similar events with different `severity` in the same `context`.
+The `context` label is used to group these inhibitions. Put alerts for similar events with different `severity` in the same `context`.
 
 For example:
 

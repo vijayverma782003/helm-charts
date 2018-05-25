@@ -5,11 +5,14 @@ global:
 
 debug: false
 
-# Supported releases are: mitaka, pike
-release: mitaka
 species: swift-storage
 
+imageRegistry_org: monsoon
+imageRegistry_repo: swift
+
 # image version of Swift image
+# the version should follow the format openstackreleasename-versionnumber
+# e.g. mitaka-12345
 image_version: DEFINED_BY_PIPELINE
 
 # image version of auxiliary nginx bundled with dumb-init
@@ -23,6 +26,27 @@ image_version_auxiliary_statsd_exporter: 'v0.5.0'
 # shared secrets and credentials
 hash_path_prefix: DEFINED_IN_REGION_CHART
 hash_path_suffix: DEFINED_IN_REGION_CHART
+
+# S3 API Emulation for seed cluster
+s3api_enabled: false
+
+# health check only
+dispersion_auth_url: DEFINED_IN_REGION_CHART
+dispersion_password: DEFINED_IN_REGION_CHART
+
+# Enable cluster health checks: https://github.com/sapcc/swift-health-statsd
+health_statsd: true
+
+# Enable prometheus probing
+probing: true
+
+# Object Server Configurations
+object_replicator_concurrency: 2
+object_updater_concurrency: 2
+
+# Swift client timeout in seconds.
+# Allows to avoid 408 client timeout occurred by VMware snapshot creation process
+# swift_client_timeout: 420 # 7 minutes, default is 60 seconds
 
 # If the swift cluster is shared across multiple openstack clusters, one can
 # start multiple proxy deployments connecting to the different keystone backends
@@ -53,18 +77,14 @@ clusters:
     #tls_crt: "" # DEFINED_IN_REGION_CHART
 
     # If vice president is active:
-    #sans:
-    #  - repo
+    #sans: [repo]
+
+    # Offer optional HTTP port only for special domains like repo.region.tld
+    # proxy_public_http_port: 8080
+    # sans_http: [repo]
 
 # rings (TODO: having the rings in here is insane, but --values is currently
 # the only way to supply region-specific data; figure out a better way)
 account_ring_base64: DEFINED_IN_REGION_CHART
 container_ring_base64: DEFINED_IN_REGION_CHART
 object_ring_base64: DEFINED_IN_REGION_CHART
-
-# health check only
-dispersion_auth_url: DEFINED_IN_REGION_CHART
-dispersion_password: DEFINED_IN_REGION_CHART
-
-# Enable cluster health checks: https://github.com/sapcc/swift-health-statsd
-health_statsd: true

@@ -17,7 +17,11 @@ notification_opt_out = {{ $message_type }}
 
 {{- if .Values.api.auth }}
 [auth]
+{{- if eq .Values.release "queens" }}
+methods = {{ .Values.api.auth.methods | default "password,token,application_credential" }}
+{{ else }}
 methods = {{ .Values.api.auth.methods | default "password,token" }}
+{{- end }}
 {{ if .Values.api.auth.external }}external = {{ .Values.api.auth.external }}{{ end }}
 {{ if .Values.api.auth.password }}password = {{ .Values.api.auth.password }}{{ end }}
 {{ if .Values.api.auth.totp }}totp = {{ .Values.api.auth.totp }}{{ end }}
@@ -54,6 +58,12 @@ secret = {{ .Values.api.cc_radius.secret }}
 trusted_issuer = {{ .Values.services.ingress.x509.trusted_issuer }}
 issuer_attribute = {{ .Values.services.ingress.x509.issuer_attribute | default "SSL_CLIENT_I_DN" }}
 protocol = x509
+{{- end }}
+
+{{ if .Values.api.oauth1 }}
+[oauth1]
+request_token_duration = {{ .Values.api.oauth1.request_token_duration | default "28800" }}
+access_token_duration = {{ .Values.api.oauth1.access_token_duration | default "0" }}
 {{- end }}
 
 [cache]

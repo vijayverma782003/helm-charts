@@ -2,11 +2,20 @@ dependencies:
 - name: mariadb
   repository: file://../../common/mariadb
   version: 0.1.1
-- name: memcached
-  repository: file://../../common/memcached
-  version: 0.0.1
+- name: mysql_metrics
+  repository: file://../../common/mysql_metrics
+  version: 0.1.0
 - name: rabbitmq
   repository: file://../../common/rabbitmq
   version: 0.1.0
-digest: sha256:72e55cc3c9ac5ee1df057f779ac7a8daff81165d91c7db0d047bead8f4dd9311
-generated: 2017-11-21T11:38:37.423769358+01:00
+- name: rabbitmq
+  repository: file://../../common/rabbitmq
+  version: 0.1.0
+- name: memcached
+  repository: file://../../common/memcached
+  version: 0.0.1
+- name: utils
+  repository: file://../../openstack/utils
+  version: 0.1.1
+digest: sha256:8bd659c1af3e9e64c34e642b510abfdeb4908b02f8946a2dc21d5ccecc61e03d
+generated: 2018-05-07T11:22:00.748059+02:00

@@ -1,13 +1,13 @@
 {{define "db_url" }}
     {{- if kindIs "map" . -}}
-postgresql://{{.Values.global.dbUser}}:{{.Values.global.dbPassword}}@{{.Chart.Name}}-postgresql.{{.Release.Namespace}}.svc.kubernetes.{{.Values.global.region}}.{{.Values.global.tld}}:5432/{{.Values.postgresql.postgresDatabase}}
+postgresql+psycopg2://{{.Values.global.dbUser}}:{{.Values.global.dbPassword | default (tuple . .Values.global.dbUser | include "postgres.password_for_user")}}@{{.Chart.Name}}-postgresql.{{.Release.Namespace}}.svc.kubernetes.{{.Values.global.region}}.{{.Values.global.tld}}:5432/{{.Values.postgresql.postgresDatabase}}
     {{- else }}
         {{- $envAll := index . 0 }}
         {{- $name := index . 1 }}
         {{- $user := index . 2 }}
         {{- $password := index . 3 }}
         {{- with $envAll -}}
-postgresql://{{$user}}:{{$password}}@{{.Chart.Name}}-postgresql.{{.Release.Namespace}}.svc.kubernetes.{{.Values.global.region}}.{{.Values.global.tld}}:5432/{{$name}}
+postgresql+psycopg2://{{$user}}:{{$password}}@{{.Chart.Name}}-postgresql.{{.Release.Namespace}}.svc.kubernetes.{{.Values.global.region}}.{{.Values.global.tld}}:5432/{{$name}}
         {{- end }}
     {{- end -}}
 ?connect_timeout=10&keepalives_idle=5&keepalives_interval=5&keepalives_count=10
@@ -78,3 +78,16 @@ postgresql://{{$user}}:{{$password}}@{{.Chart.Name}}-postgresql.{{.Release.Names
 {{define "swift_endpoint_host"}}objectstore-3.{{.Values.global.region}}.{{.Values.global.tld}}{{end}}
 
 {{define "cfm_api_endpoint_host_public"}}cfm.{{.Values.global.region}}.{{.Values.global.tld}}{{end}}
+
+{{- define "utils.password_for_fixed_user_and_host" }}
+    {{- $envAll := index . 0 }}
+    {{- $user := index . 1 }}
+    {{- $host := index . 2 }}
+    {{- derivePassword 1 "long" $envAll.Values.global.master_password $user $host }}
+{{- end }}
+
+{{- define "identity.password_for_user" }}
+    {{- $envAll := index . 0 }}
+    {{- $user := index . 1 }}
+    {{- tuple $envAll ( $envAll.Values.global.user_suffix | default "" | print $user ) ( include "keystone_api_endpoint_host_public" $envAll ) | include "utils.password_for_fixed_user_and_host" }}
+{{- end }}

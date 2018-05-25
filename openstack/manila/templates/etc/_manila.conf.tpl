@@ -1,7 +1,7 @@
 [DEFAULT]
 debug = {{.Values.debug }}
 
-log_config_append = /etc/manila/logging.conf
+log_config_append = /etc/manila/logging.ini
 
 use_forwarded_for = true
 
@@ -13,26 +13,28 @@ enabled_share_backends = netapp-multi
 # So, set here name of some share-type that will be used by default.
 default_share_type = default
 
-storage_availability_zone = {{.Values.global.default_availability_zone}}
+storage_availability_zone = {{ .Values.default_availability_zone | default .Values.global.default_availability_zone }}
 
 # rootwrap_config = /etc/manila/rootwrap.conf
 api_paste_config = /etc/manila/api-paste.ini
 
-rpc_backend = rabbit
+transport_url = rabbit://{{ .Values.rabbitmq.users.default.user }}:{{ .Values.rabbitmq.users.default.password | default (tuple . .Values.rabbitmq.users.default.user | include "rabbitmq.password_for_user") }}@{{ include "release_rabbitmq_host" .}}:{{ .Values.rabbitmq.port | default 5672 }}{{ .Values.rabbitmq.virtual_host | default "/" }}
 
 os_region_name = {{.Values.global.region}}
 
 osapi_share_listen = 0.0.0.0
 
+# seconds between state report
+report_interval = {{ .Values.report_interval | default 10 }}
+service_down_time = {{ .Values.service_down_time | default 60 }}
+periodic_interval = {{ .Values.periodic_interval | default 60 }}
+
 rpc_response_timeout = {{ .Values.rpc_response_timeout | default .Values.global.rpc_response_timeout | default 60 }}
 rpc_workers = {{ .Values.rpc_workers | default .Values.global.rpc_workers | default 1 }}
 
 wsgi_default_pool_size = {{ .Values.wsgi_default_pool_size | default .Values.global.wsgi_default_pool_size | default 100 }}
-{{- include "ini_sections.database_options" . }}
 
 delete_share_server_with_last_share = false
-# Unallocated share servers reclamation time interval (minutes).
-unused_share_server_cleanup_interval = {{ .Values.share_server_cleanup_interval | default 10 }}
 
 # Float representation of the over subscription ratio when thin
 # provisioning is involved. Default ratio is 20.0, meaning provisioned
@@ -41,7 +43,9 @@ unused_share_server_cleanup_interval = {{ .Values.share_server_cleanup_interval 
 # physical capacity. A ratio of 1.0 means provisioned capacity cannot
 # exceed the total physical capacity. A ratio lower than 1.0 is
 # invalid. (floating point value)
-max_over_subscription_ratio = {{ .Values.max_over_subscription_ratio | default 1.0 }}
+max_over_subscription_ratio = {{ .Values.max_over_subscription_ratio | default 3.0 }}
+
+scheduler_default_filters = AvailabilityZoneFilter,CapacityFilter,CapabilitiesFilter
 
 # all default quotas are 0 to enforce usage of the Resource Management tool in Elektra
 quota_shares = 0
@@ -49,6 +53,8 @@ quota_gigabytes = 0
 quota_snapshots = 0
 quota_snapshot_gigabytes = 0
 quota_share_networks = 0
+quota_share_groups = 0
+quota_share_group_snapshots = 0
 
 [neutron]
 auth_strategy = keystone
@@ -64,13 +70,8 @@ project_domain_name = {{.Values.global.keystone_service_domain | default "Defaul
 insecure = True
 
 [oslo_messaging_rabbit]
-rabbit_userid = {{ .Values.rabbitmq.users.default.user }}
-rabbit_password = {{ .Values.rabbitmq.users.default.password }}
 rabbit_ha_queues = {{ .Values.rabbitmq.ha_queues | default "true" }}
 rabbit_transient_queues_ttl={{ .Values.rabbit_transient_queues_ttl | default .Values.global.rabbit_transient_queues_ttl | default 60 }}
-rabbit_virtual_host = {{ .Values.rabbitmq.virtual_host | default "/" }}
-rabbit_host = {{.Release.Name}}-rabbitmq.{{.Release.Namespace}}.svc.kubernetes.{{.Values.global.region}}.{{.Values.global.tld}}
-rabbit_port = {{ .Values.rabbitmq.port | default 5672 }}
 
 [oslo_concurrency]
 lock_path = /var/lib/manila/tmp
@@ -87,5 +88,5 @@ user_domain_name = {{.Values.global.keystone_service_domain | default "Default"}
 region_name = {{.Values.global.region}}
 project_name = {{.Values.global.keystone_service_project |  default "service"}}
 project_domain_name = {{.Values.global.keystone_service_domain | default "Default"}}
-memcache_servers = {{include "memcached_host" .}}:{{.Values.global.memcached_port_public | default 11211}}
+memcached_servers = {{include "memcached_host" .}}:{{.Values.global.memcached_port_public | default 11211}}
 insecure = True
