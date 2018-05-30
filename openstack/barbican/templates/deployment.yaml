@@ -48,6 +48,19 @@ spec:
             - name: NAMESPACE
               value: {{ .Release.Namespace }}
             - name: DEPENDENCY_SERVICE
+            {{- if .Values.postgresql.useOperator }}
+              value: "barbican-rabbitmq"
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  name: {{.Values.postgresql.clusterName}}.{{.Values.postgresql.postgresDatabase}}.credentials
+                  key: username
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{.Values.postgresql.clusterName}}.{{.Values.postgresql.postgresDatabase}}.credentials
+                  key: password
+            {{ else }}
               value: "barbican-postgresql,barbican-rabbitmq"
             {{- if .Values.sentry.enabled }}
             - name: SENTRY_DSN

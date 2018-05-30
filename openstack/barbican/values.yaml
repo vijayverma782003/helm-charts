@@ -29,6 +29,14 @@ image_version: newton-20180327.1
 debug: "True"
 
 postgresql:
+  useOperator: true
+  clusterName: 'barbican-postgresql'
+  waleBackup:
+    bucketName: 'd058695'
+    backupSchedule: '* * * * *'
+    s3AccessKeyID: ''
+    s3SecretAccessKey: ''
+    s3Region: 'qa-de-1'
   imageTag: '9.4.14'
   postgresDatabase: barbican
   postgresPassword: null
@@ -44,6 +52,9 @@ postgresql:
     metrics: true
     imageTag: v0.5.12
     os_password: null
+
+pgmetrics:
+  db_name: barbican
 
 rabbitmq:
   users:

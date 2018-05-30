@@ -33,7 +33,11 @@ backlog = 4096
 max_allowed_secret_in_bytes = 10000
 max_allowed_request_size_in_bytes = 1000000
 
+{{- if .Values.postgresql.useOperator }}
+sql_connection = postgresql://{{include "db_host" .}}:5432/barbican
+{{ else }}
 sql_connection = {{ include "db_url" . }}
+{{- end }}
 
 transport_url = rabbit://{{ .Values.rabbitmq.users.default.user }}:{{ .Values.rabbitmq.users.default.password }}@{{.Release.Name}}-rabbitmq.{{.Release.Namespace}}.svc.kubernetes.{{.Values.global.region}}.{{.Values.global.tld}}:{{ .Values.rabbitmq.port | default 5672 }}{{ .Values.rabbitmq.virtual_host | default "/" }}
 

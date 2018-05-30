@@ -1,3 +1,4 @@
+{{- if not .Values.postgresql.useOperator }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -20,3 +21,4 @@ data:
         CREATE ROLE {{.Values.global.dbUser}} WITH ENCRYPTED PASSWORD '{{.Values.global.dbPassword}}' LOGIN;
         GRANT ALL PRIVILEGES ON DATABASE {{.Values.postgresql.postgresDatabase}} TO {{.Values.global.dbUser}};
     EOSQL
+{{- end }}

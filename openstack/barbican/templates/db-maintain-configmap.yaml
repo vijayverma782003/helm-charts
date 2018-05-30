@@ -1,3 +1,4 @@
+{{- if not .Values.postgresql.useOperator }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -19,3 +20,4 @@ data:
         ALTER ROLE {{ .Values.global.dbUser }} WITH ENCRYPTED PASSWORD '{{ .Values.global.dbPassword }}';
         ALTER ROLE {{ .Values.postgresql.postgresUser }} WITH ENCRYPTED PASSWORD '{{ .Values.postgresql.postgresPassword }}';
     EOSQL
+{{- end }}
