@@ -15,8 +15,8 @@
 					"main"
 				],
 				"config": {
-					"aws_access_key_id": "c541fa15e7f742bf8dd35283e9cc0c9d",
-					"aws_secret_access_key": "9fa9f70afdb141ffa432e542617660c6",
+					"aws_access_key_id": {{ $content.pipelines.openstackdb_import.key_id }},
+					"aws_secret_access_key": {{ $content.pipelines.openstackdb_import.access_key }},
 					"region": "staging",
 					"endpointURL": "https://objectstore-3.staging.cloud.sap:443",
 					"bucket": "/datalake",
