@@ -1,0 +1,18 @@
+# we do not need end-to-end encryption 
+useTLS: false
+# built-in users
+users:
+  admin:
+    username: admin
+    tenant: default
+    # password: DEFINED-IN-SECRETS
+  # user for ingesting data into the spanning disk database 
+  ingestor:
+    username: ingestor
+    tenant: default
+    # password: DEFINED-IN-SECRETS
+
+database:
+    # TODO: post-installation needed
+    schema: OPENSTACK
+
